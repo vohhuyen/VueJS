@@ -29,7 +29,9 @@
           </nav>
         </div>
         <div class="content">
-          <router-view />
+          <keep-alive>
+            <router-view />
+          </keep-alive>
         </div>
       </div>
     </main>

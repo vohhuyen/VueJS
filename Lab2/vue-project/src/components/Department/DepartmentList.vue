@@ -1,8 +1,11 @@
 <template>
   <div class="department-list">
     <h1>Departments</h1>
-    <button v-bind="$attrs" @click="openForm()" class="add-btn">Add Department</button>
-    <ul class="department-items">
+    <button @click="isModalVisible = true" class="add-btn">Add Department</button>
+    <Modal :isVisible="isModalVisible" @close="isModalVisible = false">
+      <DepartmentForm />
+    </Modal>
+    <transition-group name="list" tag="ul" class="department-items">
       <li v-for="(department, index) in departments" :key="department.id" class="department-item">
         <span class="department-name">{{ department.name }}</span>
         <div class="action-buttons">
@@ -11,7 +14,7 @@
           <button @click="removeDepartment(department.id, index)" class="delete-btn">Delete</button>
         </div>
       </li>
-    </ul>
+    </transition-group>
   </div>
 </template>
 
@@ -19,18 +22,26 @@
 import { api } from '../../api';
 import DepartmentForm from './DepartmentForm.vue';
 import DepartmentDetail from './DepartmentDetail.vue';
+import Modal from './Modal.vue';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   inject: ['permissions'],
+  components: { Modal, DepartmentForm },
   data() {
     return {
+      isModalVisible: false,
       departments: [],
     };
   },
   async mounted() {
     this.departments = await api.getDepartments();
   },
+  computed: {
+    ...mapGetters(['allDepartments']),
+  },
   methods: {
+    ...mapActions(['fetchDepartments', 'deleteDepartment']),
     async removeDepartment(id, index) {
       await api.deleteDepartment(id);
       this.departments.splice(index, 1);
